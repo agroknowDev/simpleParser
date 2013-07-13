@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+<!ENTITY buildProps SYSTEM "./build.properties">
+]>
+
+<project name="simpleParser" default="build" basedir=".">
+    &buildProps;
+	
+	<!-- Common setting -->
+	
+    <property name="appname" value="${ant.project.name}" />
+    <property name="source.home" location="${src.dir}" />
+    <property name="compile.debug" value="true" />
+    <property name="compile.optimize" value="false" />
+    
+    <path id="compile.classpath">
+    	<fileset dir="${buildhome}/lib">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <path id="run.classpath">
+         <fileset dir="${buildhome}/lib">
+            <include name="*.jar" />
+        </fileset>
+        <pathelement location="${build.dir}"/>
+    </path>
+    
+    <target name="init">
+        <echo message="-------- Start building, please wait --------" />
+    </target>
+    
+    <target name="build" depends="compile">
+        <echo message=" Building with ${ant.version} on Java ${ant.java.version}...." />
+    </target>
+    
+    <target name="prepare" depends="init">
+        <mkdir dir="${dist.dir}" />
+        <mkdir dir="${build.dir}" />
+    </target>
+    
+    <target name="compile" depends="generateParser">
+        <javac srcdir="${src.dir}/" destdir="${build.dir}/" debug="${compile.debug}">
+            <classpath refid="compile.classpath" />
+            <!--
+                <compilerarg value="-Xlint:unchecked" />
+            -->
+        </javac>
+    </target>
+    
+    
+    <target name="clean">
+        <delete dir="${dist.dir}" />
+        <delete dir="${build.dir}" />
+        <delete file="${parserOuptputDir}/NSDLParser.java" />
+        <delete file="${parserOuptputDir}/NSDLParser.java~" />
+        <delete file="${parserOuptputDir}/LOMParser.java" />
+        <delete file="${parserOuptputDir}/LOMParser.java~" />
+        <delete file="${parserOuptputDir}/DCParser.java" />
+        <delete file="${parserOuptputDir}/DCParser.java~" />
+        <delete file="${parserOuptputDir}/MODSParser.java" />
+        <delete file="${parserOuptputDir}/MODSParser.java~" />
+        <delete file="${parserOuptputDir}/LOMILOXParser.java" />
+        <delete file="${parserOuptputDir}/LOMILOXParser.java~" />
+    </target>
+    
+    <target name="dist" depends="package">
+        <echo message=" Packaging jar file...." />
+    </target>
+    
+    <target name="package" >
+        <jar destfile="${dist.dir}/${appname}.jar"
+            basedir="${build.dir}"
+            excludes="Test.class"
+        />
+    </target>
+    
+    <target name="run">
+        <java classname="Test" classpathref="run.classpath"/>
+    </target>
+    
+    <target name="generateParser" depends="prepare">
+        <java jar="${jflex.jar}" fork="true">
+            <arg value="-d"/>
+            <arg value="${parserOuptputDir}"/>
+            <arg value="${lomParser}"/>
+        </java>
+        <java jar="${jflex.jar}" fork="true">
+            <arg value="-d"/>
+            <arg value="${parserOuptputDir}"/>
+            <arg value="${nsdlParser}"/>
+        </java>
+        <java jar="${jflex.jar}" fork="true">
+            <arg value="-d"/>
+            <arg value="${parserOuptputDir}"/>
+            <arg value="${dcParser}"/>
+        </java>
+        <java jar="${jflex.jar}" fork="true">
+            <arg value="-d"/>
+            <arg value="${parserOuptputDir}"/>
+            <arg value="${lomiloxParser}"/>
+        </java>
+        <java jar="${jflex.jar}" fork="true">
+            <arg value="-d"/>
+            <arg value="${parserOuptputDir}"/>
+            <arg value="${modsParser}"/>
+        </java>
+    </target>
+    	
+</project>
+
